@@ -1,0 +1,39 @@
+Case                           | Strategy               | Result | Response
+----------------------------------------------------------------------------------------------------
+1. Old detail present          | recent_only            | PASS   | Your dog's name is Rufus.
+1. Old detail present          | structured_state       | PASS   | Your dog's name is Rufus.
+1. Old detail present          | structured_retrieval   | PASS   | Your dog's name is Rufus.
+2. Multiple turns required     | recent_only            | FAIL   | I don't have all your preferences to answer that.
+2. Multiple turns required     | structured_state       | PASS   | It would be a blue triangle with a 7 inside it.
+2. Multiple turns required     | structured_retrieval   | PASS   | It would be a blue triangle with a 7 inside it.
+3. Preference change           | recent_only            | PASS   | You should have tea.
+3. Preference change           | structured_state       | PASS   | You should have tea.
+3. Preference change           | structured_retrieval   | PASS   | You should have tea.
+4. Explicit correction         | recent_only            | PASS   | Your brother's name is Matt.
+4. Explicit correction         | structured_state       | PASS   | Your brother's name is Matt.
+4. Explicit correction         | structured_retrieval   | PASS   | Your brother's name is Matt.
+5. Ambiguous contradiction     | recent_only            | PASS   | You mentioned living in New York but looking for an apartment in Los Angeles. Co
+5. Ambiguous contradiction     | structured_state       | PASS   | You mentioned living in New York but looking for an apartment in Los Angeles. Co
+5. Ambiguous contradiction     | structured_retrieval   | PASS   | You mentioned living in New York but looking for an apartment in Los Angeles. Co
+6. Absent from history         | recent_only            | PASS   | I do not know the color of your new car.
+6. Absent from history         | structured_state       | PASS   | You haven't told me the color of your car yet.
+6. Absent from history         | structured_retrieval   | PASS   | You haven't told me the color of your car yet.
+7. Recent turns alone          | recent_only            | PASS   | No, Venus is the hottest planet, even though Mercury is closer.
+7. Recent turns alone          | structured_state       | PASS   | No, Venus is the hottest planet, even though Mercury is closer.
+7. Recent turns alone          | structured_retrieval   | PASS   | No, Venus is the hottest planet, even though Mercury is closer.
+8. Long history with filler    | recent_only            | FAIL   | I don't know your dog's name.
+8. Long history with filler    | structured_state       | PASS   | Your dog's name is Rufus.
+8. Long history with filler    | structured_retrieval   | PASS   | Your dog's name is Rufus.
+9. Prompt exceeds budget       | recent_only            | PASS   | Your dog's name is Rufus.
+9. Prompt exceeds budget       | structured_state       | PASS   | Your dog's name is Rufus.
+9. Prompt exceeds budget       | structured_retrieval   | PASS   | Your dog's name is Rufus.
+10. Source integrity / dupli   | recent_only            | PASS   | You live in New York.
+10. Source integrity / dupli   | structured_state       | PASS   | You live in New York.
+10. Source integrity / dupli   | structured_retrieval   | PASS   | You live in New York.
+
+==================================================
+RESULTS SUMMARY
+==================================================
+recent_only           : 8/10 correct | Avg Tokens (proxy): 256
+structured_state      : 10/10 correct | Avg Tokens (proxy): 518
+structured_retrieval  : 10/10 correct | Avg Tokens (proxy): 790
