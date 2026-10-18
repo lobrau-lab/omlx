@@ -1,0 +1,39 @@
+Case                           | Strategy               | Result | Response
+----------------------------------------------------------------------------------------------------
+Old detail present             | recent_only            | FAIL   | I don't know your dog's name.
+Old detail present             | rolling_summary        | FAIL   | I don't know your dog's name.
+Old detail present             | structured_state       | PASS   | Your dog's name is Rufus.
+Old detail present             | structured_retrieval   | PASS   | Your dog's name is Rufus.
+Multiple turns required        | recent_only            | FAIL   | I don't have all your preferences to answer that.
+Multiple turns required        | rolling_summary        | FAIL   | I don't have all your preferences to answer that.
+Multiple turns required        | structured_state       | PASS   | It would be a blue triangle with a 7 inside it.
+Multiple turns required        | structured_retrieval   | PASS   | It would be a blue triangle with a 7 inside it.
+Preference change              | recent_only            | PASS   | You should have tea.
+Preference change              | rolling_summary        | PASS   | You should have tea.
+Preference change              | structured_state       | PASS   | You should have tea.
+Preference change              | structured_retrieval   | PASS   | You should have tea.
+Explicit correction            | recent_only            | PASS   | Your brother's name is Matt.
+Explicit correction            | rolling_summary        | PASS   | Your brother's name is Matt.
+Explicit correction            | structured_state       | PASS   | Your brother's name is Matt.
+Explicit correction            | structured_retrieval   | PASS   | Your brother's name is Matt.
+Ambiguous contradiction        | recent_only            | PASS   | I'm not sure where you live.
+Ambiguous contradiction        | rolling_summary        | PASS   | I'm not sure where you live.
+Ambiguous contradiction        | structured_state       | PASS   | You mentioned living in New York but looking for an apartment in Los Angeles. Could you clarify where you live right now?
+Ambiguous contradiction        | structured_retrieval   | PASS   | You mentioned living in New York but looking for an apartment in Los Angeles. Could you clarify where you live right now?
+Absent from history            | recent_only            | PASS   | I do not know the color of your new car.
+Absent from history            | rolling_summary        | PASS   | I do not know the color of your new car.
+Absent from history            | structured_state       | PASS   | You haven't told me the color of your car yet.
+Absent from history            | structured_retrieval   | PASS   | You haven't told me the color of your car yet.
+Recent turns alone             | recent_only            | PASS   | No, Venus is the hottest planet, even though Mercury is closer.
+Recent turns alone             | rolling_summary        | PASS   | No, Venus is the hottest planet, even though Mercury is closer.
+Recent turns alone             | structured_state       | PASS   | No, Venus is the hottest planet, even though Mercury is closer.
+Recent turns alone             | structured_retrieval   | PASS   | No, Venus is the hottest planet, even though Mercury is closer.
+
+
+==================================================
+RESULTS SUMMARY
+==================================================
+recent_only           : 5/7 correct | Avg Tokens (proxy): 55
+rolling_summary       : 5/7 correct | Avg Tokens (proxy): 75
+structured_state      : 7/7 correct | Avg Tokens (proxy): 202
+structured_retrieval  : 7/7 correct | Avg Tokens (proxy): 294
