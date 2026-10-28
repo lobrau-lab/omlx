@@ -358,26 +358,29 @@ def _append_entry(lines: list[str], entry: list[str]) -> list[str]:
 # ---------------------------------------------------------------------------
 
 
-class _PatchLoader(yaml.SafeLoader):
-    """SafeLoader that tolerates the ``!!js`` tags the patch layer allows."""
+def _safe_construct_mapping(loader, node, deep=False):
+    # The harness parser (js-yaml) rejects duplicate keys; PyYAML keeps the last.
+    seen: set[str] = set()
+    for key_node, _ in node.value:
+        if not isinstance(key_node, yaml.ScalarNode):
+            continue
+        if key_node.tag == "tag:yaml.org,2002:merge":
+            continue
+        if key_node.value in seen:
+            raise yaml.constructor.ConstructorError(
+                "while constructing a mapping",
+                node.start_mark,
+                f"found duplicate key {key_node.value!r}",
+                key_node.start_mark,
+            )
+        seen.add(key_node.value)
+    return yaml.constructor.SafeConstructor.construct_mapping(loader, node, deep=deep)
 
-    def construct_mapping(self, node, deep=False):  # type: ignore[no-untyped-def]
-        # The harness parser (js-yaml) rejects duplicate keys; PyYAML keeps the last.
-        seen: set[str] = set()
-        for key_node, _ in node.value:
-            if not isinstance(key_node, yaml.ScalarNode):
-                continue
-            if key_node.tag == "tag:yaml.org,2002:merge":
-                continue
-            if key_node.value in seen:
-                raise yaml.constructor.ConstructorError(
-                    "while constructing a mapping",
-                    node.start_mark,
-                    f"found duplicate key {key_node.value!r}",
-                    key_node.start_mark,
-                )
-            seen.add(key_node.value)
-        return super().construct_mapping(node, deep=deep)
+
+yaml.SafeLoader.add_constructor(
+    yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+    _safe_construct_mapping,
+)
 
 
 def _unknown_tag(loader, tag_suffix, node):  # type: ignore[no-untyped-def]
@@ -388,13 +391,13 @@ def _unknown_tag(loader, tag_suffix, node):  # type: ignore[no-untyped-def]
     return loader.construct_mapping(node)
 
 
-_PatchLoader.add_multi_constructor("!", _unknown_tag)
-_PatchLoader.add_multi_constructor("tag:yaml.org,2002:", _unknown_tag)
+yaml.SafeLoader.add_multi_constructor("!", _unknown_tag)
+yaml.SafeLoader.add_multi_constructor("tag:yaml.org,2002:", _unknown_tag)
 
 
 def _parse_yaml(text: str, what: str):
     try:
-        return yaml.load(text, Loader=_PatchLoader)
+        return yaml.safe_load(text)
     except yaml.YAMLError as e:
         raise DshConfigShapeError(f"{what} is not valid YAML: {e}") from e
 
@@ -589,9 +592,14 @@ def _upsert_ref(lines: list[str], ref_name: str, value: str) -> list[str]:
         # instead of dropping its entries.
         return _upsert_block(lines, r_idx, r_idx + 1, "refs", block)
     # Block-style section: upsert just our key inside it.
-    return _upsert_block(lines, r_idx + 1, _block_content_end(lines, r_idx, r_indent),
-                         ref_name, [f"{' ' * (r_indent + 2)}{entry}"],
-                         allow_inline=True)
+    return _upsert_block(
+        lines,
+        r_idx + 1,
+        _block_content_end(lines, r_idx, r_indent),
+        ref_name,
+        [f"{' ' * (r_indent + 2)}{entry}"],
+        allow_inline=True,
+    )
 
 
 def write_credentials_ref(credentials_path: Path, ref_name: str, value: str) -> None:
